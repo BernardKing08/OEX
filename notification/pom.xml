@@ -64,6 +64,10 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -113,7 +117,7 @@
 					</to>
 					<container>
 						<ports>
-							<port>8082</port>
+							<port>9010</port>
 						</ports>
 						<jvmFlags>
 							<jvmFlag>-XX:+UseContainerSupport</jvmFlag>

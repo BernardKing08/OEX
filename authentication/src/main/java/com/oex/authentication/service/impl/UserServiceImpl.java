@@ -7,7 +7,6 @@ import com.oex.authentication.exception.EmailAlreadyExistsException;
 import com.oex.authentication.exception.ResourceNotFoundException;
 import com.oex.authentication.mapper.UserMapper;
 import com.oex.authentication.model.User;
-import com.oex.authentication.model.Role;
 import com.oex.authentication.repository.UserRepository;
 import com.oex.authentication.service.UserService;
 import lombok.RequiredArgsConstructor;

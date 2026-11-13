@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 9010
 
 spring:
   application:
@@ -37,3 +37,11 @@ management:
 logging:
   pattern:
     console: ${CONSOLE_LOG_PATTERN:%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %cyan(%msg%n)}
+
+resilience4j.circuitbreaker:
+  instances:
+    authenticationCircuitBreaker:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 2
