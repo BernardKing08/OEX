@@ -3,8 +3,9 @@ package com.oex.notification.client;
 import com.oex.notification.dto.UserInfo;
 import com.oex.notification.exception.ResourceNotFoundException;
 import com.oex.notification.exception.ServiceUnavailableException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,18 +15,17 @@ import reactor.core.publisher.Mono;
 public class AuthenticationClient {
 
     private final WebClient webClient;
-    private final CircuitBreakerFactory circuitBreakerFactory;
 
     public AuthenticationClient(WebClient.Builder webClientBuilder,
-                                 @Value("${oex.services.authentication.base-url}") String baseUrl,
-                                 CircuitBreakerFactory circuitBreakerFactory) {
+                                 @Value("${oex.services.authentication.base-url}") String baseUrl) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
-        this.circuitBreakerFactory = circuitBreakerFactory;
+        
     }
 
+    @CircuitBreaker(name="authenticationCircuitBreaker", fallbackMethod = "fallbackUser")
+    @Retry(name = "authenticationRetry", fallbackMethod = "fallbackUser")
     public UserInfo getUser(Long userId) {
-        UserInfo userInfo = circuitBreakerFactory.create("authenticationCircuitBreaker")
-                .run(() -> fetchUser(userId), throwable -> fallbackUser(throwable));
+        UserInfo userInfo = fetchUser(userId);
         if (userInfo == null) {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
@@ -47,7 +47,7 @@ public class AuthenticationClient {
                 .block();
     }
 
-    private UserInfo fallbackUser(Throwable throwable) {
+    private UserInfo fallbackUser(Long userId, Throwable throwable) {
         throw new ServiceUnavailableException("Authentication service is currently unavailable");
     }
 
